@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class ThirdPersonCameraController : MonoBehaviour
 {
-    [Header("Camera Settings")]
+    [Header("Smooth Settings")]
     public float smoothTime = 0.5f;
 
-    [SerializeField]
     private Vector3 offset;
 
     private Camera myCam;
@@ -15,6 +14,10 @@ public class ThirdPersonCameraController : MonoBehaviour
     private void Awake()
     {
         myCam = GetComponent<Camera>();
+    }
+
+    private void Start()
+    {
         offset = transform.position - PlayerController.instance.transform.position;
     }
 
