@@ -1,9 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor.Animations;
 
 public class PlayerController : MonoBehaviour
 {
+    #region Static Variables
+
     public static PlayerController instance
     {
         set
@@ -15,11 +18,22 @@ public class PlayerController : MonoBehaviour
     }
     private static PlayerController _instance = null;
 
-    private Animator anim;
+    #endregion
+
+    #region Public Variables
+
+    [HideInInspector]
+    public Animator anim;
+
+    #endregion
+
+    #region MonoBehaviour Callbacks
 
     private void Awake()
     {
         instance = this;
         anim = GetComponent<Animator>();
     }
+
+    #endregion
 }
