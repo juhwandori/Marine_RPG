@@ -17,7 +17,6 @@ public class PlayerEquipment : MonoBehaviour
 
     public Equipment testEquipment;
     public Equipment testEquipment1;
-    public Equipment testEquipment2;
 
     #endregion
 
@@ -25,17 +24,13 @@ public class PlayerEquipment : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             Equip(testEquipment);
         }
-        if (Input.GetKeyDown(KeyCode.S))
+        if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             Equip(testEquipment1);
-        }
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            Equip(testEquipment2);
         }
     }
 
