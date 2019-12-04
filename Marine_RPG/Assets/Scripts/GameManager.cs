@@ -25,6 +25,8 @@ public class GameManager : MonoBehaviour
     public KeyCode backward = KeyCode.S;
     public KeyCode sprint = KeyCode.LeftShift;
     public KeyCode walk = KeyCode.LeftControl;
+    public KeyCode fire = KeyCode.Mouse0;
+    public KeyCode aim = KeyCode.Mouse1;
 
     #endregion
 

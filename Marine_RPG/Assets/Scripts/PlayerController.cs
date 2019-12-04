@@ -31,9 +31,6 @@ public class PlayerController : MonoBehaviour
     public float sprintSpeed = 35f;
     public float smoothTime = 0.1f;
 
-    [Header("Animation Settings")]
-    public float idleAnimationSwapPr;
-
     #endregion
 
     #region Private Variables
@@ -42,7 +39,8 @@ public class PlayerController : MonoBehaviour
     private bool isSprint = false;
     private Rigidbody rb;
     private Vector3 currentVelocity = Vector3.zero;
-    private float pingpong;
+    private PlayerEquipment PE;
+    private bool aimed;
 
     #endregion
 
@@ -54,6 +52,7 @@ public class PlayerController : MonoBehaviour
         instance = this;
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
+        PE = GetComponent<PlayerEquipment>();
     }
 
     private void Update()
@@ -85,6 +84,32 @@ public class PlayerController : MonoBehaviour
 
         anim.SetInteger("horizontalMovementDirection", (int)horizontalInput);
         anim.SetInteger("verticalMovementDirection", (int)verticalInput);
+
+        if (PE.currentEquipedEquipment != null && Input.GetKey(GameManager.instance.aim))
+        {
+            anim.SetBool("aim", true);
+            PE.currentEquipedEquipment.UpdateRotation(new Vector3(-206.731f, -166.346f, 18.21899f));
+            if (Input.GetKeyDown(GameManager.instance.fire))
+            {
+                PE.currentEquipedEquipment.On(transform.TransformDirection(transform.forward));
+            }
+            else if (Input.GetKey(GameManager.instance.fire))
+            {
+                PE.currentEquipedEquipment.UpdateTargetDirection(transform.TransformDirection(transform.forward));
+                anim.SetBool("fire", true);
+            }
+            else if (Input.GetKeyUp(GameManager.instance.fire))
+            {
+                PE.currentEquipedEquipment.Off();
+                anim.SetBool("fire", false);
+            }
+        }
+        else if (Input.GetKeyUp(GameManager.instance.aim))
+        {
+            PE.currentEquipedEquipment.UpdateRotation(new Vector3(-195.121f, -97.14301f, 108.802f));
+            anim.SetBool("fire", false);
+            anim.SetBool("aim", false);
+        }
     }
 
     #endregion

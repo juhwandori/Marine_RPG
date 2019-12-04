@@ -41,20 +41,21 @@ public class PlayerEquipment : MonoBehaviour
     public void Equip(Equipment equipment)
     {
         UnEquip();
+        Equipment instance;
 
         foreach (Equipment equip in equipments)
         {
             if (equip == equipment)
             {
-                Instantiate(equip, weaponPivot, false);
-                currentEquipedEquipment = equip;
+                instance = Instantiate(equip, weaponPivot, false);
+                currentEquipedEquipment = instance;
                 return;
             }
         }
 
         equipments.Add((Resources.Load(equipment.name) as GameObject).GetComponent<Equipment>());
-        Instantiate(equipments[equipments.Count - 1], weaponPivot, false);
-        currentEquipedEquipment = equipments[equipments.Count - 1];
+        instance = Instantiate(equipments[equipments.Count - 1], weaponPivot, false);
+        currentEquipedEquipment = instance;
         PlayerController.instance.anim.runtimeAnimatorController = currentEquipedEquipment.animatorController;
     }
 

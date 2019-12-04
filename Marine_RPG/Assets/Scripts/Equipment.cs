@@ -13,6 +13,7 @@ public class Equipment : MonoBehaviour
     [Header("Equipment Settings")]
     public EQUIP_TYPE equipmentType;
     public string equipmentName;
+    public List<LayerMask> targetLayerMasks = new List<LayerMask>();
     [ShowIf("isGun")]
     public bool auto;
     [ShowIf(ConditionOperator.And, "isGun", "auto")]
@@ -42,6 +43,9 @@ public class Equipment : MonoBehaviour
     private int currentAmmo;
     private Transform muzzle;
     private ParticleSystem muzzleFlash;
+    private ParticleSystem hit;
+    private int targetLayerMask;
+    private Vector3 targetDirection;
 
     #endregion
 
@@ -52,14 +56,21 @@ public class Equipment : MonoBehaviour
         currentAmmo = ammo;
         muzzle = transform.Find("Muzzle");
         muzzleFlash = transform.Find("Muzzle_Flash").GetComponent<ParticleSystem>();
+        hit = transform.Find("Hit").GetComponent<ParticleSystem>();
+        foreach (LayerMask lm in targetLayerMasks)
+        {
+            targetLayerMask += (1 << lm);
+        }
+        targetLayerMask = ~targetLayerMask;
     }
 
     #endregion
 
     #region Public Functions
 
-    public void On(Vector3 targetDirection = default)
+    public void On(Vector3 targetDirection)
     {
+        UpdateTargetDirection(targetDirection);
         switch (equipmentType)
         {
             case EQUIP_TYPE.Melee:
@@ -69,8 +80,8 @@ public class Equipment : MonoBehaviour
             case EQUIP_TYPE.Shotgun:
                 break;
             case EQUIP_TYPE.AssaultRifle:
-                if (auto) StartCoroutine("Auto", targetDirection);
-                else SemiAuto(targetDirection);
+                if (auto) StartCoroutine("Auto");
+                else SemiAuto();
                 break;
             case EQUIP_TYPE.Sniper:
                 break;
@@ -83,23 +94,69 @@ public class Equipment : MonoBehaviour
 
     public void Off()
     {
+        switch (equipmentType)
+        {
+            case EQUIP_TYPE.Melee:
+                break;
+            case EQUIP_TYPE.Pistol:
+                break;
+            case EQUIP_TYPE.Shotgun:
+                break;
+            case EQUIP_TYPE.AssaultRifle:
+                if (auto) StopCoroutine("Auto");
+                break;
+            case EQUIP_TYPE.Sniper:
+                break;
+            case EQUIP_TYPE.Grenade:
+                break;
+            default:
+                break;
+        }
+    }
 
+    public void UpdateTargetDirection(Vector3 updateValue)
+    {
+        this.targetDirection = updateValue;
+    }
+
+    public void UpdateRotation(Vector3 targetRotation)
+    {
+        transform.localEulerAngles = targetRotation;
     }
 
     #endregion
 
-    private IEnumerator Auto(Vector3 targetDirection)
+    private IEnumerator Auto()
     {
         while (true)
         {
-            //Ray track = new Ray(muzzle.transform.position, )
+            SemiAuto();
+            if (currentAmmo <= 0) yield break;
+            yield return new WaitForSeconds(roundsPerMinute / (60 * 60));
         }
     }
 
-    private void SemiAuto(Vector3 targetDirection)
+    private void SemiAuto()
     {
+        if (currentAmmo <= 0) return;
 
+        Ray track = new Ray(muzzle.transform.position, targetDirection);
+
+        Physics.Raycast(track, out RaycastHit hitInfo, effectiveRange, targetLayerMask, QueryTriggerInteraction.Ignore);
+        Debug.DrawRay(track.origin, track.direction * effectiveRange, Color.green);
+        muzzleFlash.Play();
+
+        if (hitInfo.collider != null)
+        {
+            // Damage (Enemy Script 작성 후)
+            ParticleSystem hitInstance = Instantiate(hit, hitInfo.point + hitInfo.normal * 0.1f, Quaternion.identity);
+            hitInstance.Play();
+            Destroy(hitInstance.gameObject, hitInstance.main.duration + hitInstance.main.startLifetimeMultiplier);
+        }
+        currentAmmo--;
     }
+
+    #region Attribute Functions
 
     private bool isGun()
     {
@@ -111,4 +168,6 @@ public class Equipment : MonoBehaviour
         if (equipmentType == EQUIP_TYPE.Grenade) return true;
         return false;
     }
+
+    #endregion
 }
