@@ -46,6 +46,7 @@ public class Equipment : MonoBehaviour
     private ParticleSystem hit;
     private int targetLayerMask;
     private Vector3 targetDirection;
+    private Light muzzleFlashLight;
 
     #endregion
 
@@ -55,6 +56,8 @@ public class Equipment : MonoBehaviour
     {
         currentAmmo = ammo;
         muzzle = transform.Find("Muzzle");
+        muzzleFlashLight = muzzle.GetComponent<Light>();
+        muzzleFlashLight.enabled = false;
         muzzleFlash = transform.Find("Muzzle_Flash").GetComponent<ParticleSystem>();
         hit = transform.Find("Hit").GetComponent<ParticleSystem>();
         foreach (LayerMask lm in targetLayerMasks)
@@ -145,6 +148,7 @@ public class Equipment : MonoBehaviour
         Physics.Raycast(track, out RaycastHit hitInfo, effectiveRange, targetLayerMask, QueryTriggerInteraction.Ignore);
         Debug.DrawRay(track.origin, track.direction * effectiveRange, Color.green);
         muzzleFlash.Play();
+        StartCoroutine(OnMuzzleLight());
 
         if (hitInfo.collider != null)
         {
@@ -154,6 +158,13 @@ public class Equipment : MonoBehaviour
             Destroy(hitInstance.gameObject, hitInstance.main.duration + hitInstance.main.startLifetimeMultiplier);
         }
         currentAmmo--;
+    }
+
+    private IEnumerator OnMuzzleLight()
+    {
+        muzzleFlashLight.enabled = true;
+        yield return new WaitForSeconds(0.14f);
+        muzzleFlashLight.enabled = false;
     }
 
     #region Attribute Functions

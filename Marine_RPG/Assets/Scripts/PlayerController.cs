@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor.Animations;
+using Cinemachine;
 
 public class PlayerController : MonoBehaviour
 {
@@ -31,6 +32,10 @@ public class PlayerController : MonoBehaviour
     public float sprintSpeed = 35f;
     public float smoothTime = 0.1f;
 
+    [Header("Camera Settings")]
+    public CinemachineFreeLook freeLookCam;
+    public CinemachineFreeLook aimCam;
+
     #endregion
 
     #region Private Variables
@@ -41,6 +46,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 currentVelocity = Vector3.zero;
     private PlayerEquipment PE;
     private bool aimed;
+    private float freeLookXAxisValue_temp;
 
     #endregion
 
@@ -55,8 +61,19 @@ public class PlayerController : MonoBehaviour
         PE = GetComponent<PlayerEquipment>();
     }
 
+    private void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        freeLookCam.enabled = true;
+        aimCam.enabled = false;
+        freeLookCam.m_XAxis.Value = 0f;
+        aimCam.m_XAxis.Value = 0f;
+    }
+
     private void Update()
     {
+        /////////////////////////// Move ///////////////////////////////////////////
+        
         float horizontalInput = Input.GetAxisRaw("Horizontal");
         float verticalInput = Input.GetAxisRaw("Vertical");
         Vector3 unitOffset = new Vector3(horizontalInput, 0, verticalInput).normalized;
@@ -85,30 +102,63 @@ public class PlayerController : MonoBehaviour
         anim.SetInteger("horizontalMovementDirection", (int)horizontalInput);
         anim.SetInteger("verticalMovementDirection", (int)verticalInput);
 
-        if (PE.currentEquipedEquipment != null && Input.GetKey(GameManager.instance.aim))
+        /////////////////////////// Aim ////////////////////////////////////////////
+
+        if (PE.currentEquipedEquipment != null)
         {
-            anim.SetBool("aim", true);
-            PE.currentEquipedEquipment.UpdateRotation(new Vector3(-206.731f, -166.346f, 18.21899f));
-            if (Input.GetKeyDown(GameManager.instance.fire))
+            if (Input.GetKey(GameManager.instance.aim))
             {
-                PE.currentEquipedEquipment.On(transform.TransformDirection(transform.forward));
+                freeLookCam.enabled = false;
+                aimCam.enabled = true;
+                anim.SetBool("aim", true);
+                PE.currentEquipedEquipment.UpdateRotation(new Vector3(-206.731f, -166.346f, 18.21899f));  // 슈퍼 하드 코딩 (제출 후 수정)
+                if (Input.GetKeyDown(GameManager.instance.fire))
+                {
+                    PE.currentEquipedEquipment.On(transform.TransformDirection(transform.forward));
+                }
+                else if (Input.GetKey(GameManager.instance.fire))
+                {
+                    PE.currentEquipedEquipment.UpdateTargetDirection(transform.TransformDirection(transform.forward));
+                    anim.SetBool("fire", true);
+                }
+                else if (Input.GetKeyUp(GameManager.instance.fire))
+                {
+                    PE.currentEquipedEquipment.Off();
+                    anim.SetBool("fire", false);
+                }
             }
-            else if (Input.GetKey(GameManager.instance.fire))
+            else if (Input.GetKeyUp(GameManager.instance.aim))
             {
-                PE.currentEquipedEquipment.UpdateTargetDirection(transform.TransformDirection(transform.forward));
-                anim.SetBool("fire", true);
-            }
-            else if (Input.GetKeyUp(GameManager.instance.fire))
-            {
-                PE.currentEquipedEquipment.Off();
+                PE.currentEquipedEquipment.UpdateRotation(new Vector3(-195.121f, -97.14301f, 108.802f));  // 슈퍼 하드 코딩 (제출 후 수정)
                 anim.SetBool("fire", false);
+                anim.SetBool("aim", false);
+
+                freeLookCam.enabled = true;
+                aimCam.enabled = false;
             }
         }
-        else if (Input.GetKeyUp(GameManager.instance.aim))
+
+        /////////////////////////// Rotate /////////////////////////////////////////
+        float mouseX = Input.GetAxis("Mouse X") * GameManager.instance.mouseSensitivity * Time.deltaTime;
+
+        if (Input.GetKeyDown(KeyCode.LeftAlt))
         {
-            PE.currentEquipedEquipment.UpdateRotation(new Vector3(-195.121f, -97.14301f, 108.802f));
-            anim.SetBool("fire", false);
-            anim.SetBool("aim", false);
+            freeLookXAxisValue_temp = freeLookCam.m_XAxis.Value;
+        }
+        else if (Input.GetKey(KeyCode.LeftAlt))
+        {
+            freeLookCam.m_XAxis.m_InputAxisName = "Mouse X";
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftAlt))
+        {
+            freeLookCam.m_XAxis.m_InputAxisName = null;
+            freeLookCam.m_XAxis.Value = freeLookXAxisValue_temp;
+        }
+        else
+        {
+            freeLookCam.m_XAxis.Value += mouseX;
+            aimCam.m_XAxis.Value += mouseX;
+            transform.Rotate(Vector3.up * mouseX);
         }
     }
 

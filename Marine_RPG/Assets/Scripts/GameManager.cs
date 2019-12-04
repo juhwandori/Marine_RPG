@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
     public KeyCode walk = KeyCode.LeftControl;
     public KeyCode fire = KeyCode.Mouse0;
     public KeyCode aim = KeyCode.Mouse1;
+    public float mouseSensitivity = 1f;
 
     #endregion
 

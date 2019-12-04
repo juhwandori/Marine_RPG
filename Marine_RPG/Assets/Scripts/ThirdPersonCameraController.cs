@@ -1,14 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using NaughtyAttributes;
 
 public class ThirdPersonCameraController : MonoBehaviour
 {
-    [Header("Smooth Settings")]
-    public float smoothTime = 0.5f;
+    [Header("Look Settings")]
+    public Vector3 lookOffset;
 
-    private Vector3 offset;
+    [Header("Follow Settings")]
+    public float smoothTime = 0.1f;
 
+    [ShowNonSerializedField]
+    private Vector3 positionOffset;
+    [ShowNonSerializedField]
+    private Vector3 rotationOffset;
     private Camera myCam;
 
     private void Awake()
@@ -18,7 +24,9 @@ public class ThirdPersonCameraController : MonoBehaviour
 
     private void Start()
     {
-        offset = transform.position - PlayerController.instance.transform.position;
+        positionOffset = transform.position - PlayerController.instance.transform.position;
+        transform.LookAt(PlayerController.instance.transform);
+        transform.localEulerAngles += lookOffset;
     }
 
     private void LateUpdate()
@@ -28,7 +36,6 @@ public class ThirdPersonCameraController : MonoBehaviour
 
     private void UpdateCamPos()
     {
-        Vector3 currentVelocity = Vector3.zero;
-        transform.position = Vector3.SmoothDamp(transform.position, PlayerController.instance.transform.position + offset, ref currentVelocity, smoothTime);
+        transform.position = Vector3.Lerp(transform.position, PlayerController.instance.transform.position + positionOffset, Time.deltaTime);
     }
 }
