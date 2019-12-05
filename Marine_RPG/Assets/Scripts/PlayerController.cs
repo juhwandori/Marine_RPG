@@ -47,7 +47,8 @@ public class PlayerController : MonoBehaviour
     private PlayerEquipment PE;
     private bool aimed;
     private float freeLookXAxisValue_temp;
-
+    private float aimCamXAxisValueInitValue;
+    
     #endregion
 
     #region MonoBehaviour Callbacks
@@ -67,16 +68,28 @@ public class PlayerController : MonoBehaviour
         freeLookCam.enabled = true;
         aimCam.enabled = false;
         freeLookCam.m_XAxis.Value = 0f;
-        aimCam.m_XAxis.Value = 0f;
+        aimCamXAxisValueInitValue = aimCam.m_XAxis.Value;
     }
 
     private void Update()
     {
         /////////////////////////// Move ///////////////////////////////////////////
-        
         float horizontalInput = Input.GetAxisRaw("Horizontal");
         float verticalInput = Input.GetAxisRaw("Vertical");
         Vector3 unitOffset = new Vector3(horizontalInput, 0, verticalInput).normalized;
+        unitOffset = transform.TransformDirection(unitOffset);
+        print(unitOffset);
+/*        int horizontalInput = 0;
+        int verticalInput = 0;
+        if (Input.GetKeyDown(GameManager.instance.forward)) verticalInput += 1;
+        if (Input.GetKeyDown(GameManager.instance.backward)) verticalInput -= 1;
+        if (Input.GetKeyUp(GameManager.instance.forward) || Input.GetKeyUp(GameManager.instance.backward)) verticalInput = 0;
+
+        if (Input.GetKeyDown(GameManager.instance.right)) horizontalInput += 1;
+        if (Input.GetKeyDown(GameManager.instance.left)) horizontalInput -= 1;
+        if (Input.GetKeyUp(GameManager.instance.right) || Input.GetKeyUp(GameManager.instance.left)) horizontalInput = 0;
+
+        Vector3 unitOffset = transform.right * horizontalInput + transform.forward * verticalInput;*/
 
         if (Input.GetKeyDown(GameManager.instance.walk))
         {
@@ -157,8 +170,9 @@ public class PlayerController : MonoBehaviour
         else
         {
             freeLookCam.m_XAxis.Value += mouseX;
-            aimCam.m_XAxis.Value += mouseX;
-            transform.Rotate(Vector3.up * mouseX);
+            aimCamXAxisValueInitValue += mouseX;
+            aimCam.m_XAxis.Value = aimCamXAxisValueInitValue;
+            transform.Rotate(Vector3.up * mouseX, Space.Self);
         }
     }
 
@@ -168,7 +182,7 @@ public class PlayerController : MonoBehaviour
 
     public void Move(Vector3 offset)
     {
-        transform.position = Vector3.SmoothDamp(transform.position, transform.position + offset, ref currentVelocity, smoothTime);
+        transform.localPosition = Vector3.SmoothDamp(transform.localPosition, transform.localPosition + offset, ref currentVelocity, smoothTime);
         anim.SetFloat("movementSpeed", (currentVelocity.magnitude * 10));
     }
 
