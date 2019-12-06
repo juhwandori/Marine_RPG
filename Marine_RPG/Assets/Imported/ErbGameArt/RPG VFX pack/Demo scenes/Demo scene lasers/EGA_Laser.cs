@@ -10,6 +10,9 @@ public class EGA_Laser : MonoBehaviour
     public float HitOffset = 0;
 
     public float MaxLength;
+
+    public List<LayerMask> targetValidator = new List<LayerMask>();  // custom
+
     private LineRenderer Laser;
 
     public float MainTextureLength = 1f;
@@ -24,6 +27,8 @@ public class EGA_Laser : MonoBehaviour
     private ParticleSystem[] Effects;
     private ParticleSystem[] Hit;
 
+    private int targetLayerMask;  // custom
+
     void Start ()
     {
         //Get LineRender and ParticleSystem components from current prefab;  
@@ -34,6 +39,14 @@ public class EGA_Laser : MonoBehaviour
         //Save [1] and [3] textures speed
         //{ DISABLED AFTER UPDATE}
         //LaserSpeed = LaserStartSpeed;
+
+        /// custom
+        foreach (LayerMask lm in targetValidator)
+        {
+            targetLayerMask += (1 << lm);
+        }
+        //targetLayerMask = ~targetLayerMask;
+        ///
     }
 
     void Update()
@@ -48,7 +61,7 @@ public class EGA_Laser : MonoBehaviour
             Laser.SetPosition(0, transform.position);
             RaycastHit hit; //DELATE THIS IF YOU WANT USE LASERS IN 2D
             //ADD THIS IF YOU WANNT TO USE LASERS IN 2D: RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.forward, MaxLength);       
-            if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, MaxLength))//CHANGE THIS IF YOU WANT TO USE LASERRS IN 2D: if (hit.collider != null)
+            if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, MaxLength, targetLayerMask, QueryTriggerInteraction.Ignore))//CHANGE THIS IF YOU WANT TO USE LASERRS IN 2D: if (hit.collider != null) // targetLayerMask custom
             {
                 //End laser position if collides with object
                 Laser.SetPosition(1, hit.point);

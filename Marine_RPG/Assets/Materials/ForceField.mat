@@ -101,7 +101,7 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - Color_721B001B: {r: 0, g: 7.5424724, b: 8.47419, a: 0}
+    - Color_721B001B: {r: 0, g: 0.6666667, b: 0.7490196, a: 0}
     - Vector2_6DCCA0C7: {r: 0, g: 0, b: 0, a: 0}
     - Vector2_93F83983: {r: 1, g: 1, b: 0, a: 0}
     - Vector2_997BC03A: {r: 5, g: 5, b: 0, a: 0}

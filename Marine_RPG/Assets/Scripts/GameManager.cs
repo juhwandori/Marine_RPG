@@ -1,9 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using NaughtyAttributes;
 
 public class GameManager : MonoBehaviour
 {
+    #region Static Variables
+
     public static GameManager instance
     {
         set
@@ -15,6 +18,7 @@ public class GameManager : MonoBehaviour
     }
     public static GameManager _instance;
 
+    #endregion
 
     #region Public Variables;
 
@@ -29,11 +33,27 @@ public class GameManager : MonoBehaviour
     public KeyCode aim = KeyCode.Mouse1;
     public float mouseSensitivity = 1f;
 
+    [Header("Enemy Spawn Settings")]
+    public List<EnemySpawner> enemySpawners = new List<EnemySpawner>();
+    public float spawnDelay = 5f;
+    public bool noise;
+
     #endregion
 
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
         instance = this;
+    }
+
+    private void Start()
+    {
+        OnEnemySpawners();
+    }
+
+    private void OnEnemySpawners()
+    {
+        object[] data = { spawnDelay, noise };
+        foreach (EnemySpawner spawner in enemySpawners) spawner.StartCoroutine("Generate", data);
     }
 }

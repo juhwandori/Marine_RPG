@@ -192,6 +192,11 @@ public class PlayerController : MonoBehaviour
         anim.SetFloat("movementSpeed", (currentVelocity.magnitude * 10));
     }
 
+    public Vector3 GetCenter()
+    {
+        return transform.position + GetComponent<CapsuleCollider>().center;
+    }
+
     #endregion
 
     #region Private Functions

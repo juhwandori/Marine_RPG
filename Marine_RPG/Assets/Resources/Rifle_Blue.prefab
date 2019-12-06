@@ -102,7 +102,7 @@ MonoBehaviour:
   auto: 1
   roundsPerMinute: 600
   boltAction: 0
-  damagePerBullet: 0
+  damagePerBullet: 10
   effectiveRange: 100
   ammo: 10000
   explosionRadius: 0

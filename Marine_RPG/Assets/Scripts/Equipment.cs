@@ -13,7 +13,7 @@ public class Equipment : MonoBehaviour
     [Header("Equipment Settings")]
     public EQUIP_TYPE equipmentType;
     public string equipmentName;
-    public List<LayerMask> targetLayerMasks = new List<LayerMask>();
+    public List<LayerMask> targetValidator = new List<LayerMask>();
     [ShowIf("isGun")]
     public bool auto;
     [ShowIf(ConditionOperator.And, "isGun", "auto")]
@@ -21,7 +21,7 @@ public class Equipment : MonoBehaviour
     [HideIf("auto")]
     public bool boltAction;
     [ShowIf("isGun")]
-    public float damagePerBullet;
+    public int damagePerBullet;
     [ShowIf("isGun")]
     public float effectiveRange = 100f;
     [ShowIf("isGun")]
@@ -60,7 +60,7 @@ public class Equipment : MonoBehaviour
         muzzleFlashLight.enabled = false;
         muzzleFlash = transform.Find("Muzzle_Flash").GetComponent<ParticleSystem>();
         hit = transform.Find("Hit").GetComponent<ParticleSystem>();
-        foreach (LayerMask lm in targetLayerMasks)
+        foreach (LayerMask lm in targetValidator)
         {
             targetLayerMask += (1 << lm);
         }
@@ -149,8 +149,12 @@ public class Equipment : MonoBehaviour
 
         if (hitInfo.collider != null)
         {
-            print(hitInfo.collider.name);
-            // Damage (Enemy Script 작성 후)
+            if (hitInfo.collider.CompareTag("Enemy"))
+            {
+                print('a');
+                Enemy target = hitInfo.collider.GetComponentInParent<Enemy>();
+                target.TakeDamage(damagePerBullet);
+            }
             ParticleSystem hitInstance = Instantiate(hit, hitInfo.point + hitInfo.normal * 0.1f, Quaternion.identity);
             hitInstance.Play();
             Destroy(hitInstance.gameObject, hitInstance.main.duration + hitInstance.main.startLifetimeMultiplier);
