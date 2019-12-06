@@ -117,7 +117,7 @@ public class Enemy : MonoBehaviour
         rb.isKinematic = true;
 
         mat.SetFloat("_DissolveMask", 0);
-        mat.DisableKeyword("_DissolveMask_PLANE");
+        mat.DisableKeyword("_DISSOLVEMASK_PLANE");
 
         while (true)
         {

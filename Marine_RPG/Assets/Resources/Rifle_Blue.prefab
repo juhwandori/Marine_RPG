@@ -96,13 +96,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   equipmentType: 4
   equipmentName: Rifle_Blue
-  targetLayerMasks:
-  - serializedVersion: 2
-    m_Bits: 512
+  targetValidator: []
   auto: 1
   roundsPerMinute: 600
   boltAction: 0
-  damagePerBullet: 10
+  damagePerBullet: 30
   effectiveRange: 100
   ammo: 10000
   explosionRadius: 0
@@ -5038,7 +5036,7 @@ Transform:
   m_GameObject: {fileID: 1030661498847271943}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.191, y: 0.065, z: -0.054}
-  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1034501899830595369}
   - {fileID: 1034364660334624053}

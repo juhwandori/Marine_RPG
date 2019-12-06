@@ -36,11 +36,12 @@ public class Equipment : MonoBehaviour
     [Header("Animator Controller Settings")]
     public AnimatorController animatorController;
 
+    [HideInInspector]
+    public int currentAmmo;
     #endregion
 
     #region Private Variables
 
-    private int currentAmmo;
     private Transform muzzle;
     private ParticleSystem muzzleFlash;
     private ParticleSystem hit;
@@ -125,6 +126,12 @@ public class Equipment : MonoBehaviour
     public void UpdateRotation(Vector3 targetRotation)
     {
         transform.localEulerAngles = targetRotation;
+    }
+
+    public IEnumerator Reloading(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        currentAmmo = ammo;
     }
 
     #endregion

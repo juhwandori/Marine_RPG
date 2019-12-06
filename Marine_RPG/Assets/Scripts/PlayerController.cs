@@ -155,6 +155,12 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+/*        if (Input.GetKeyDown(GameManager.instance.reload))
+        {
+            anim.SetBool("reload", true);
+            PE.currentEquipedEquipment.StartCoroutine("Reloading", anim.GetCurrentAnimatorClipInfo(0)[0].clip.length);
+        }*/
+
         /////////////////////////// Rotate /////////////////////////////////////////
         float mouseX = Input.GetAxis("Mouse X") * GameManager.instance.mouseSensitivity * Time.deltaTime;
 

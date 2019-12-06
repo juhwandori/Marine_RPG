@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerEquipment : MonoBehaviour
 {
@@ -12,7 +13,10 @@ public class PlayerEquipment : MonoBehaviour
 
     [Space(10)]
     public Transform weaponPivot;
-
+    public Text weaponText;
+    public Color blue;
+    public Color red;
+    public Text ammoText;
 
 
     public Equipment testEquipment;
@@ -27,10 +31,20 @@ public class PlayerEquipment : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             Equip(testEquipment);
+            weaponText.text = "Red";
+            weaponText.color = red;
+            ammoText.color = red;
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             Equip(testEquipment1);
+            weaponText.text = "Blue";
+            weaponText.color = blue;
+            ammoText.color = blue;
+        }
+        if (currentEquipedEquipment != null)
+        {
+            ammoText.text = currentEquipedEquipment.currentAmmo.ToString() + "/" + currentEquipedEquipment.ammo.ToString(); 
         }
     }
 

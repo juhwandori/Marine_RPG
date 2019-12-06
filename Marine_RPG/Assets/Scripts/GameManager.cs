@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using NaughtyAttributes;
 
 public class GameManager : MonoBehaviour
@@ -31,6 +32,7 @@ public class GameManager : MonoBehaviour
     public KeyCode walk = KeyCode.LeftControl;
     public KeyCode fire = KeyCode.Mouse0;
     public KeyCode aim = KeyCode.Mouse1;
+    public KeyCode reload = KeyCode.R;
     public float mouseSensitivity = 1f;
 
     [Header("Enemy Spawn Settings")]
@@ -40,15 +42,28 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
+    public void StartGame()
+    {
+        SceneManager.LoadScene(1);
+    }
+
+    public void ExitGame()
+    {
+
+    }
+
     private void Awake()
     {
-        DontDestroyOnLoad(gameObject);
+        //DontDestroyOnLoad(gameObject);
         instance = this;
     }
 
     private void Start()
     {
-        OnEnemySpawners();
+        if (enemySpawners != null)
+        {
+            OnEnemySpawners();
+        }
     }
 
     private void OnEnemySpawners()

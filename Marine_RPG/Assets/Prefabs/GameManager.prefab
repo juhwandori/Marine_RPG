@@ -52,3 +52,9 @@ MonoBehaviour:
   fire: 323
   aim: 324
   mouseSensitivity: 150
+  enemySpawners:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  spawnDelay: 5
+  noise: 1
