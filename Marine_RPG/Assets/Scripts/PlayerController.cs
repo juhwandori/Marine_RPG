@@ -45,10 +45,12 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rb;
     private Vector3 currentVelocity = Vector3.zero;
     private PlayerEquipment PE;
-    private bool aimed;
     private float freeLookXAxisValue_temp;
-    private float aimCamXAxisValueInitValue;
-    
+    private float freeLookXAxisInitValue;
+    private float aimCamXAxisInitValue;
+    private float aimCamYAxisInitValue;
+    private Transform aimPivot;
+
     #endregion
 
     #region MonoBehaviour Callbacks
@@ -60,15 +62,16 @@ public class PlayerController : MonoBehaviour
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
         PE = GetComponent<PlayerEquipment>();
+        aimPivot = transform.Find("Aim pivot");
     }
 
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        freeLookCam.enabled = true;
-        aimCam.enabled = false;
-        freeLookCam.m_XAxis.Value = 0f;
-        aimCamXAxisValueInitValue = aimCam.m_XAxis.Value;
+        freeLookXAxisInitValue = freeLookCam.m_XAxis.Value;
+        aimCamXAxisInitValue = aimCam.m_XAxis.Value;
+        aimCamYAxisInitValue = aimCam.m_YAxis.Value;
+        TurnOffAimCam();
     }
 
     private void Update()
@@ -78,18 +81,17 @@ public class PlayerController : MonoBehaviour
         float verticalInput = Input.GetAxisRaw("Vertical");
         Vector3 unitOffset = new Vector3(horizontalInput, 0, verticalInput).normalized;
         unitOffset = transform.TransformDirection(unitOffset);
-        print(unitOffset);
-/*        int horizontalInput = 0;
-        int verticalInput = 0;
-        if (Input.GetKeyDown(GameManager.instance.forward)) verticalInput += 1;
-        if (Input.GetKeyDown(GameManager.instance.backward)) verticalInput -= 1;
-        if (Input.GetKeyUp(GameManager.instance.forward) || Input.GetKeyUp(GameManager.instance.backward)) verticalInput = 0;
+        /*        int horizontalInput = 0;
+                int verticalInput = 0;
+                if (Input.GetKeyDown(GameManager.instance.forward)) verticalInput += 1;
+                if (Input.GetKeyDown(GameManager.instance.backward)) verticalInput -= 1;
+                if (Input.GetKeyUp(GameManager.instance.forward) || Input.GetKeyUp(GameManager.instance.backward)) verticalInput = 0;
 
-        if (Input.GetKeyDown(GameManager.instance.right)) horizontalInput += 1;
-        if (Input.GetKeyDown(GameManager.instance.left)) horizontalInput -= 1;
-        if (Input.GetKeyUp(GameManager.instance.right) || Input.GetKeyUp(GameManager.instance.left)) horizontalInput = 0;
+                if (Input.GetKeyDown(GameManager.instance.right)) horizontalInput += 1;
+                if (Input.GetKeyDown(GameManager.instance.left)) horizontalInput -= 1;
+                if (Input.GetKeyUp(GameManager.instance.right) || Input.GetKeyUp(GameManager.instance.left)) horizontalInput = 0;
 
-        Vector3 unitOffset = transform.right * horizontalInput + transform.forward * verticalInput;*/
+                Vector3 unitOffset = transform.right * horizontalInput + transform.forward * verticalInput;*/
 
         if (Input.GetKeyDown(GameManager.instance.walk))
         {
@@ -121,17 +123,20 @@ public class PlayerController : MonoBehaviour
         {
             if (Input.GetKey(GameManager.instance.aim))
             {
-                freeLookCam.enabled = false;
-                aimCam.enabled = true;
+                TurnOnAimCam();
+/*                aimCamXAxisInitValue += mouseX;
+                aimCamYAxisInitValue += mouseY;
+                aimCam.m_XAxis.Value = aimCamXAxisInitValue;
+                aimCam.m_YAxis.Value = aimCamYAxisInitValue;*/
                 anim.SetBool("aim", true);
                 PE.currentEquipedEquipment.UpdateRotation(new Vector3(-206.731f, -166.346f, 18.21899f));  // 슈퍼 하드 코딩 (제출 후 수정)
                 if (Input.GetKeyDown(GameManager.instance.fire))
                 {
-                    PE.currentEquipedEquipment.On(transform.TransformDirection(transform.forward));
+                    PE.currentEquipedEquipment.On(Camera.main.ScreenPointToRay(Input.mousePosition));
                 }
                 else if (Input.GetKey(GameManager.instance.fire))
                 {
-                    PE.currentEquipedEquipment.UpdateTargetDirection(transform.TransformDirection(transform.forward));
+                    PE.currentEquipedEquipment.UpdateTargetDirection(Camera.main.ScreenPointToRay(Input.mousePosition));
                     anim.SetBool("fire", true);
                 }
                 else if (Input.GetKeyUp(GameManager.instance.fire))
@@ -146,8 +151,7 @@ public class PlayerController : MonoBehaviour
                 anim.SetBool("fire", false);
                 anim.SetBool("aim", false);
 
-                freeLookCam.enabled = true;
-                aimCam.enabled = false;
+                TurnOffAimCam();
             }
         }
 
@@ -161,29 +165,50 @@ public class PlayerController : MonoBehaviour
         else if (Input.GetKey(KeyCode.LeftAlt))
         {
             freeLookCam.m_XAxis.m_InputAxisName = "Mouse X";
-        }
+        }  
         else if (Input.GetKeyUp(KeyCode.LeftAlt))
         {
-            freeLookCam.m_XAxis.m_InputAxisName = null;
             freeLookCam.m_XAxis.Value = freeLookXAxisValue_temp;
         }
         else
         {
-            freeLookCam.m_XAxis.Value += mouseX;
-            aimCamXAxisValueInitValue += mouseX;
-            aimCam.m_XAxis.Value = aimCamXAxisValueInitValue;
+            freeLookXAxisInitValue += mouseX;
+            freeLookCam.m_XAxis.Value = freeLookXAxisInitValue;
+            aimCamXAxisInitValue += mouseX;
+            //aimCamYAxisInitValue += mouseY;
+            aimCam.m_XAxis.Value = aimCamXAxisInitValue;
+            aimCam.m_YAxis.Value = aimCamYAxisInitValue;
             transform.Rotate(Vector3.up * mouseX, Space.Self);
         }
     }
 
     #endregion
 
-    #region Public Variables
+    #region Public Functions
 
     public void Move(Vector3 offset)
     {
         transform.localPosition = Vector3.SmoothDamp(transform.localPosition, transform.localPosition + offset, ref currentVelocity, smoothTime);
         anim.SetFloat("movementSpeed", (currentVelocity.magnitude * 10));
+    }
+
+    #endregion
+
+    #region Private Functions
+
+    private void TurnOnAimCam()
+    {
+        freeLookCam.m_Priority = 0;
+        aimCam.m_Priority = 1;
+        aimCam.m_XAxis.Value = aimCamXAxisInitValue;
+        aimCam.m_YAxis.Value = aimCamYAxisInitValue;
+    }
+
+    private void TurnOffAimCam()
+    {
+        freeLookCam.m_Priority = 1;
+        freeLookCam.m_XAxis.Value = 0;
+        aimCam.m_Priority = 0;
     }
 
     #endregion

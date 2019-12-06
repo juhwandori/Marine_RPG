@@ -49,3 +49,6 @@ MonoBehaviour:
   backward: 115
   sprint: 304
   walk: 306
+  fire: 323
+  aim: 324
+  mouseSensitivity: 150

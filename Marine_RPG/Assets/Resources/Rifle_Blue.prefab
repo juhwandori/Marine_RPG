@@ -104,7 +104,7 @@ MonoBehaviour:
   boltAction: 0
   damagePerBullet: 0
   effectiveRange: 100
-  ammo: 100
+  ammo: 10000
   explosionRadius: 0
   explosionDemage: 0
   explosionDelay: 0

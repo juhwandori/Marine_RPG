@@ -45,7 +45,7 @@ public class Equipment : MonoBehaviour
     private ParticleSystem muzzleFlash;
     private ParticleSystem hit;
     private int targetLayerMask;
-    private Vector3 targetDirection;
+    private Ray bulletTrack;
     private Light muzzleFlashLight;
 
     #endregion
@@ -71,9 +71,9 @@ public class Equipment : MonoBehaviour
 
     #region Public Functions
 
-    public void On(Vector3 targetDirection)
+    public void On(Ray updateValue)
     {
-        UpdateTargetDirection(targetDirection);
+        UpdateTargetDirection(updateValue);
         switch (equipmentType)
         {
             case EQUIP_TYPE.Melee:
@@ -117,9 +117,9 @@ public class Equipment : MonoBehaviour
         }
     }
 
-    public void UpdateTargetDirection(Vector3 updateValue)
+    public void UpdateTargetDirection(Ray updateValue)
     {
-        this.targetDirection = updateValue;
+        this.bulletTrack = updateValue;
     }
 
     public void UpdateRotation(Vector3 targetRotation)
@@ -142,16 +142,14 @@ public class Equipment : MonoBehaviour
     private void SemiAuto()
     {
         if (currentAmmo <= 0) return;
-
-        Ray track = new Ray(muzzle.transform.position, targetDirection);
-
-        Physics.Raycast(track, out RaycastHit hitInfo, effectiveRange, targetLayerMask, QueryTriggerInteraction.Ignore);
-        Debug.DrawRay(track.origin, track.direction * effectiveRange, Color.green);
+        Physics.Raycast(bulletTrack, out RaycastHit hitInfo, effectiveRange, targetLayerMask, QueryTriggerInteraction.Ignore);
+        Debug.DrawRay(bulletTrack.origin, bulletTrack.direction * effectiveRange, Color.green, 0.3f);
         muzzleFlash.Play();
         StartCoroutine(OnMuzzleLight());
 
         if (hitInfo.collider != null)
         {
+            print(hitInfo.collider.name);
             // Damage (Enemy Script 작성 후)
             ParticleSystem hitInstance = Instantiate(hit, hitInfo.point + hitInfo.normal * 0.1f, Quaternion.identity);
             hitInstance.Play();
@@ -160,7 +158,7 @@ public class Equipment : MonoBehaviour
         currentAmmo--;
     }
 
-    private IEnumerator OnMuzzleLight()
+    private IEnumerator OnMuzzleLight() 
     {
         muzzleFlashLight.enabled = true;
         yield return new WaitForSeconds(0.14f);
