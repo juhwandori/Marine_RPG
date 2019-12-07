@@ -69,6 +69,7 @@ public class GameManager : MonoBehaviour
     private void OnEnemySpawners()
     {
         object[] data = { spawnDelay, noise };
+        if (enemySpawners == null) return;
         foreach (EnemySpawner spawner in enemySpawners) spawner.StartCoroutine("Generate", data);
     }
 }
